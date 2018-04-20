@@ -26,7 +26,7 @@ int firmware_Download(tDevice *device, firmwareUpdateData * options)
 #endif
 	if (options->dlMode == DL_FW_ACTIVATE)
     {
-		ret = firmware_Download_Command(device, DL_FW_ACTIVATE, options->useDMA, 0, 0, options->firmwareFileMem, options->firmwareSlot);
+		ret = firmware_Download_Command(device, DL_FW_ACTIVATE, options->useDMA, 0, 0, options->firmwareFileMem, options->firmwareSlot, options->switchToExistingFirmware);
 		options->activateFWTime = options->avgSegmentDlTime = device->drive_info.lastCommandTimeNanoSeconds;
 		return ret; 
     }
@@ -41,7 +41,7 @@ int firmware_Download(tDevice *device, firmwareUpdateData * options)
 	if (options->dlMode == DL_FW_FULL || options->dlMode == DL_FW_TEMP)
     {
         //single command to do the whole download
-        ret = firmware_Download_Command(device, options->dlMode, options->useDMA, 0, options->firmwareMemoryLength, options->firmwareFileMem, options->bufferID);
+        ret = firmware_Download_Command(device, options->dlMode, options->useDMA, 0, options->firmwareMemoryLength, options->firmwareFileMem, options->bufferID, false);
 		options->activateFWTime = options->avgSegmentDlTime = device->drive_info.lastCommandTimeNanoSeconds;
     }
     else
@@ -108,7 +108,7 @@ int firmware_Download(tDevice *device, firmwareUpdateData * options)
 			}
 #endif
 #endif
-			ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadSize, &options->firmwareFileMem[downloadOffset], options->bufferID);
+			ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadSize, &options->firmwareFileMem[downloadOffset], options->bufferID, false);
 			options->avgSegmentDlTime += device->drive_info.lastCommandTimeNanoSeconds;
 
 #if defined(DISABLE_NVME_PASSTHROUGH)//Remove it later if someone wants to. -X
@@ -165,7 +165,7 @@ int firmware_Download(tDevice *device, firmwareUpdateData * options)
                 if (downloadRemainder < device->os_info.fwdlIOsupport.maxXferSize && (downloadRemainder % device->os_info.fwdlIOsupport.payloadAlignment == 0))
                 {
                     //we're fine, just issue the command
-                    ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID);
+                    ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID, false);
                 }
                 else if (!(downloadRemainder < device->os_info.fwdlIOsupport.maxXferSize))
                 {
@@ -180,17 +180,17 @@ int firmware_Download(tDevice *device, firmwareUpdateData * options)
             }
             else //not supported, so nothing else needs to be done other than issue the command
             {
-               ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID);
+               ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID, false);
             }
 			device->os_info.fwdlIOsupport.isFirstSegmentOfDownload = false;
 			device->os_info.fwdlIOsupport.isLastSegmentOfDownload = false;
 #else
             //not windows 10 API, so just issue the command
-            ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID);
+            ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID, false);
 #endif
 #else
             //not windows 10 API, so just issue the command
-			ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID);
+			ret = firmware_Download_Command(device, options->dlMode, options->useDMA, downloadOffset, downloadRemainder, &options->firmwareFileMem[downloadOffset], options->bufferID, false);
 #endif
             if (g_verbosity > VERBOSITY_QUIET)
             {
@@ -213,7 +213,7 @@ int firmware_Download(tDevice *device, firmwareUpdateData * options)
 			device->os_info.fwdlIOsupport.activateExistingCode = false;
 #endif
 #endif
-			ret = firmware_Download_Command(device, DL_FW_ACTIVATE, options->useDMA, 0, 0, options->firmwareFileMem, options->firmwareSlot);
+			ret = firmware_Download_Command(device, DL_FW_ACTIVATE, options->useDMA, 0, 0, options->firmwareFileMem, options->firmwareSlot, false);
 			options->activateFWTime = options->avgSegmentDlTime = device->drive_info.lastCommandTimeNanoSeconds;
 		}
 

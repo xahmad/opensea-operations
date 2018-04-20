@@ -33,6 +33,7 @@ extern "C"
             uint8_t firmwareSlot;//NVMe
             uint8_t bufferID;//SCSI
         };
+		bool switchToExistingFirmware;//For use with activate so we know the mode to set and flags to set for the OS
 	} firmwareUpdateData;
     //-----------------------------------------------------------------------------
     //
