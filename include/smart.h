@@ -7,7 +7,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// ******************************************************************************************
+// ********************************************************************************************
 // 
 // \file smart.h
 // \brief This file defines the functions related to SMART features on a drive (attributes, Status check)
